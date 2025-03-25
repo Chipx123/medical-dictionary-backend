@@ -3,11 +3,16 @@ const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 10000; // Render uses port 10000
-const HOST = '0.0.0.0'; // Critical for Render deployment
+const PORT = process.env.PORT || 10000;
+const HOST = '0.0.0.0';
 
 // Enable CORS for all routes
 app.use(cors());
+
+// Health check endpoint (required for Render)
+app.get('/', (req, res) => {
+  res.send('Medical Dictionary API is running');
+});
 
 // API endpoint
 app.get('/api/search', async (req, res) => {
@@ -36,7 +41,7 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-// Updated listen() for Render compatibility
+// Start server
 app.listen(PORT, HOST, () => {
   console.log(`Server running on http://${HOST}:${PORT}`);
 });
