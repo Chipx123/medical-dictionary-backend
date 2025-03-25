@@ -3,7 +3,8 @@ const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // Render uses port 10000
+const HOST = '0.0.0.0'; // Critical for Render deployment
 
 // Enable CORS for all routes
 app.use(cors());
@@ -35,4 +36,7 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Updated listen() for Render compatibility
+app.listen(PORT, HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT}`);
+});
