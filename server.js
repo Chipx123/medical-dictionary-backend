@@ -4,27 +4,23 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const HOST = '0.0.0.0';
 
-// Enable CORS for all routes
+// Middleware
 app.use(cors());
+app.use(express.json()); // Required for POST requests (if any)
 
-// Health check endpoint (required for Render)
+// Health check endpoint (Render requires this)
 app.get('/', (req, res) => {
-  res.send('Medical Dictionary API is running');
+  res.status(200).send('Medical API is live!');
 });
 
 // API endpoint
 app.get('/api/search', async (req, res) => {
   try {
     const { query } = req.query;
+    if (!query) return res.status(400).json({ error: 'Query required' });
     
-    if (!query) {
-      return res.status(400).json({ error: 'Search query is required' });
-    }
-
     const response = await axios.get(`https://api.fda.gov/drug/label.json?search=${encodeURIComponent(query)}&limit=10`);
-    
     const medications = response.data.results.map(item => ({
       name: item.openfda?.brand_name?.[0] || 'Unknown',
       genericName: item.openfda?.generic_name?.[0] || 'Unknown',
@@ -33,7 +29,6 @@ app.get('/api/search', async (req, res) => {
       warnings: item.warnings?.[0] || 'None listed',
       indications: item.indications_and_usage?.[0] || 'Not specified'
     }));
-
     res.json(medications);
   } catch (error) {
     console.error('API Error:', error);
@@ -41,7 +36,7 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
+// Start server (critical for Render)
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
 });
